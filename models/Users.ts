@@ -17,6 +17,9 @@ export default class Users extends Base {
 
   static async findOne(params: object) {
     const user = await usersCollection.findOne(params);
+    if (!user) {
+      return null;
+    }
     return Users.prepare(user);
   }
 

@@ -1,12 +1,14 @@
 import { RouterContext } from "../deps.ts";
 import Survey from "../models/Survey.ts";
+import Users from "../models/Users.ts";
 
 class SurveyController {
   async create(ctx: RouterContext) {
     const { name, description } = await ctx.request.body().value;
-    console.log(name);
 
-    const survey = new Survey(name, description, "1");
+    const user: Users = ctx.state.user as Users;
+
+    const survey = new Survey(name, description, user.id);
     const createdSurvey = await survey.createSurvey();
     console.log(createdSurvey);
 
@@ -26,6 +28,15 @@ class SurveyController {
       ctx.response.status = 404;
       ctx.response.body = {
         message: "No survey found.",
+      };
+      return;
+    }
+
+    const user = ctx.state.user as Users;
+    if (survey.userId !== user.id) {
+      ctx.response.status = 403;
+      ctx.response.body = {
+        message: "You don't have permission to access this survey.",
       };
       return;
     }
@@ -55,6 +66,15 @@ class SurveyController {
       return;
     }
 
+    const user = ctx.state.user as Users;
+    if (survey.userId !== user.id) {
+      ctx.response.status = 403;
+      ctx.response.body = {
+        message: "You don't have permission to access this survey.",
+      };
+      return;
+    }
+
     await survey.deleteSurvey();
     ctx.response.status = 204;
     ctx.response.body = {
@@ -73,6 +93,15 @@ class SurveyController {
       return;
     }
 
+    const user = ctx.state.user as Users;
+    if (survey.userId !== user.id) {
+      ctx.response.status = 403;
+      ctx.response.body = {
+        message: "You don't have permission to access this survey.",
+      };
+      return;
+    }
+
     ctx.response.status = 200;
     ctx.response.body = {
       id: survey.id,
@@ -83,7 +112,8 @@ class SurveyController {
   }
 
   async getAllByUser(ctx: RouterContext) {
-    const surveys = await Survey.findByUser("1");
+    const user: Users = ctx.state.user as Users;
+    const surveys = await Survey.findByUser(user.id);
     ctx.response.status = 200;
     ctx.response.body = surveys;
   }
