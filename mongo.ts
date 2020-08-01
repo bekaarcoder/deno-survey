@@ -17,7 +17,17 @@ interface SurveySchema {
   userId: string;
 }
 
+interface QuestionSchema {
+  _id: { $oid: string };
+  surveyId: string;
+  text: string;
+  type: string;
+  required: boolean;
+  data: any;
+}
+
 const db = client.database("survey");
 
 export const usersCollection = db.collection<UserSchema>("users");
 export const surveyCollection = db.collection<SurveySchema>("surveys");
+export const questionCollection = db.collection<QuestionSchema>("questions");
